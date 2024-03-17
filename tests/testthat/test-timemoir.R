@@ -8,6 +8,7 @@ test_that("multiplication works", {
 
   expect_equal(result$result, TRUE)
   expect_null(result$error)
+  expect(result$duration > 1, "test")
 })
 
 test_that("multiplication works", {

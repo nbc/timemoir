@@ -1,0 +1,46 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# timemoir
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of timemoir is to get memory used by a function "from the source"
+(`/proc/<pid>/status`).
+
+## Installation
+
+You can install the development version of timemoir like so:
+
+```{r, eval=FALSE}
+library(devtools)
+devtools::install_github("nbc/timemoir")
+
+```
+
+## Example
+
+```{r example}
+library(timemoir)
+
+my_function <- function() {
+  Sys.sleep(2)
+}
+
+launch_function(my_function())
+
+```
+

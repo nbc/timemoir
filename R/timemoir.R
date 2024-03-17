@@ -1,5 +1,19 @@
-flag_file <- "flag_file.txt"
-
+#' extractVmRSS
+#'
+#' @description
+#' Extract VmRSS memory from pid file
+#'
+#' @param pid pid of processus
+#'
+#' @return memory in kB or NA
+#' @export
+#'
+#' @examples
+#'
+#' pid <- Sys.getpid()
+#' extractVmRSS(pid)
+#'
+#' @noRd
 extractVmRSS <- function(pid) {
   status_file_path <- sprintf("/proc/%s/status", pid)
 
@@ -15,8 +29,19 @@ extractVmRSS <- function(pid) {
   return(NA)
 }
 
-watch_memory <- function(pid) {
-  max_mem <- -Inf
+#' watch_memory
+#'
+#' watch memory until the file flag_file is created
+#'
+#' @param pid pid of processus
+#' @param flag_file the flag file
+#'
+#' @return max memory in kB found
+#' @export
+#'
+#' @noRd
+watch_memory <- function(pid, flag_file) {
+  max_mem <- 0
   repeat {
     if (file.exists(flag_file)) {
       return(max_mem)
@@ -29,26 +54,39 @@ watch_memory <- function(pid) {
 
 #' launch_function
 #'
-#' @param xfun
+#' @description
+#' launch xfun in background and watch the pid file to get max memory
 #'
-#' @return
+#' @param xfun the function to test
+#' @param flag_file the flag file to use to check xfun has finished
+#'
+#' @return a named list with `max_mem`, the max used memory, `duration` the
+#'   duration of the function, result, the result of the function and `error` if
+#'   function exits with error
 #' @export
 #'
 #' @examples
 #' my_fun <- function(sec) {
-#' Sys.sleep(sec)
-#' return(TRUE)
+#'   Sys.sleep(sec)
+#'   return(TRUE)
 #' }
 #'
 #' launch_function(my_fun(1))
-launch_function <- function(xfun) {
+#'
+#' my_fun <- function(sec) {
+#'   Sys.sleep(sec)
+#'   return(TRUE)
+#' }
+#'
+#' launch_function(my_fun())
+launch_function <- function(xfun, flag_file = tempfile()) {
   if (file.exists(flag_file)) file.remove(flag_file)
 
   wrapper <- function(xfun) {
     tryCatch({
       begin <- Sys.time()
       result <- xfun
-      duration <- Sys.time() - begin
+      duration <- as.numeric(Sys.time() - begin)
       return(list(result = result, duration = duration))
     }, error = function(e) {
       return(list(error = e))
@@ -56,8 +94,9 @@ launch_function <- function(xfun) {
       file.create(flag_file)
     })
   }
+
   child_proc <- parallel::mcparallel(wrapper(xfun))
-  max_mem <- watch_memory(child_proc$pid)
+  max_mem <- watch_memory(child_proc$pid, flag_file)
   result <- parallel::mccollect(child_proc)[[1]]
   result$max_mem <- max_mem
 
@@ -65,4 +104,3 @@ launch_function <- function(xfun) {
 
   return(result)
 }
-
