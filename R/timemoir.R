@@ -1,4 +1,4 @@
-#' extractVmRSS
+#' extract_memory
 #'
 #' @description
 #' Extract VmRSS memory from pid file
@@ -11,10 +11,10 @@
 #' @examples
 #'
 #' pid <- Sys.getpid()
-#' extractVmRSS(pid)
+#' extract_memory(pid)
 #'
 #' @noRd
-extractVmRSS <- function(pid) {
+extract_memory <- function(pid) {
   status_file_path <- sprintf("/proc/%s/status", pid)
 
   if (!file.exists(status_file_path)) return(NA)
@@ -46,7 +46,7 @@ watch_memory <- function(pid, flag_file) {
     if (file.exists(flag_file)) {
       return(max_mem)
     }
-    mem <- extractVmRSS(pid)
+    mem <- extract_memory(pid)
     max_mem <- max(c(max_mem, mem), na.rm=T)
     Sys.sleep(0.2)
   }
