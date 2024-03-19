@@ -64,8 +64,8 @@ watch_memory <- function(pid, flag_file) {
 #'   max used memory, `duration` the duration of the function and `error`, the
 #'   error message if function fails.
 #' @export
+#' @importFrom tibble tibble_row
 #' @importFrom rlang quo_name enquo
-#'
 #' @examples
 #' my_fun <- function(sec) {
 #'   Sys.sleep(sec)
@@ -81,10 +81,10 @@ watch_memory <- function(pid, flag_file) {
 #'
 #' timemoir(my_fun())
 timemoir <- function(xfun, flag_file = tempfile()) {
-  if (file.exists(flag_file)) file.remove(flag_file)
-
   # extract name
   fname <- rlang::quo_name(rlang::enquo(xfun))
+
+  if (file.exists(flag_file)) file.remove(flag_file)
 
   wrapper <- function(xfun) {
     tryCatch({
