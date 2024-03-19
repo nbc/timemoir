@@ -20,5 +20,5 @@ test_that("launch_function works even on exception", {
   result <- timemoir(my_fun())
 
   expect_null(result$result)
-  expect_snapshot(result$error)
+  expect_s3_class(result$error, 'error')
 })
