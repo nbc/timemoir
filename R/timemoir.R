@@ -60,9 +60,10 @@ watch_memory <- function(pid, flag_file) {
 #' @param xfun the function to test
 #' @param flag_file the flag file to use to check xfun has finished
 #'
-#' @return a named list with `result`, the result of the function, max_mem` the
-#'   max used memory, `duration` the duration of the function and `error`, the
-#'   error message if function fails.
+#' @return a named list with `fname`, the function name (as a string) passed to
+#'   `timemoir`, max_mem` the max used memory, `duration` the duration of the
+#'   function (or NA if function fails) and `error`, the error message if
+#'   function fails (or NA if function pass)
 #' @export
 #' @importFrom tibble tibble_row
 #' @importFrom rlang quo_name enquo

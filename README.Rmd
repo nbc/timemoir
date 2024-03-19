@@ -44,12 +44,10 @@ devtools::install_github("nbc/timemoir")
 ```{r example}
 library(timemoir)
 
-my_function <- function(sec) {
+my_fun <- function(sec) {
   Sys.sleep(sec)
 }
 
-timemoir(my_function(1))
-
-timemoir(my_function())
+rbind(timemoir(my_fun(1)), timemoir(my_fun(2)), timemoir(my_fun()))
 ```
 

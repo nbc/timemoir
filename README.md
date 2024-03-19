@@ -34,33 +34,15 @@ devtools::install_github("nbc/timemoir")
 ``` r
 library(timemoir)
 
-my_function <- function(sec) {
+my_fun <- function(sec) {
   Sys.sleep(sec)
 }
 
-timemoir(my_function(1))
-#> $result
-#> NULL
-#> 
-#> $duration
-#> [1] 1.001406
-#> 
-#> $error
-#> NULL
-#> 
-#> $max_mem
-#> [1] 70840
-
-timemoir(my_function())
-#> $result
-#> NULL
-#> 
-#> $duration
-#> NULL
-#> 
-#> $error
-#> <simpleError in my_function(): argument "sec" is missing, with no default>
-#> 
-#> $max_mem
-#> [1] 69664
+rbind(timemoir(my_fun(1)), timemoir(my_fun(2)), timemoir(my_fun()))
+#> # A tibble: 3 × 4
+#>   fname     duration error                                          max_mem
+#>   <chr>        <dbl> <chr>                                            <dbl>
+#> 1 my_fun(1)     1.00  <NA>                                            81848
+#> 2 my_fun(2)     2.00  <NA>                                            82308
+#> 3 my_fun()     NA    "argument \"sec\" is missing, with no default"   81484
 ```
