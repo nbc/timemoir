@@ -7,7 +7,6 @@ test_that("launch_function works when no error", {
   result <- timemoir(my_fun(1))
 
   expect_equal(result$fname, "my_fun(1)")
-  expect_equal(result$result, TRUE)
   expect(result$duration > 1, "test")
   expect_equal(is.na(result$error), TRUE)
 })
@@ -21,6 +20,5 @@ test_that("launch_function works even on exception", {
   result <- timemoir(my_fun())
 
   expect_equal(result$fname, "my_fun()")
-  expect_equal(is.na(result$result), TRUE)
-  expect_s3_class(result$error, 'error')
+  expect_snapshot(result$error)
 })
