@@ -52,7 +52,7 @@ watch_memory <- function(pid, flag_file) {
   }
 }
 
-#' launch_function
+#' timemoir
 #'
 #' @description
 #' launch xfun in background and watch the pid file to get max memory
@@ -71,15 +71,15 @@ watch_memory <- function(pid, flag_file) {
 #'   return(TRUE)
 #' }
 #'
-#' launch_function(my_fun(1))
+#' timemoir(my_fun(1))
 #'
 #' my_fun <- function(sec) {
 #'   Sys.sleep(sec)
 #'   return(TRUE)
 #' }
 #'
-#' launch_function(my_fun())
-launch_function <- function(xfun, flag_file = tempfile()) {
+#' timemoir(my_fun())
+timemoir <- function(xfun, flag_file = tempfile()) {
   if (file.exists(flag_file)) file.remove(flag_file)
 
   wrapper <- function(xfun) {

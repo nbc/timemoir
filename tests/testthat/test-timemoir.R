@@ -4,7 +4,7 @@ test_that("launch_function works when no error", {
     return(TRUE)
   }
 
-  result <- launch_function(my_fun(1))
+  result <- timemoir(my_fun(1))
 
   expect_equal(result$result, TRUE)
   expect_null(result$error)
@@ -17,7 +17,7 @@ test_that("launch_function works even on exception", {
     return(TRUE)
   }
 
-  result <- launch_function(my_fun())
+  result <- timemoir(my_fun())
 
   expect_null(result$result)
   expect_snapshot(result$error)
