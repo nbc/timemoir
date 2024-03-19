@@ -6,14 +6,14 @@
 #' @param pid pid of processus
 #'
 #' @return memory in kB or NA
-#' @export
+#' @noRd
 #'
 #' @examples
 #'
 #' pid <- Sys.getpid()
 #' extract_memory(pid)
 #'
-#' @noRd
+
 extract_memory <- function(pid) {
   status_file_path <- sprintf("/proc/%s/status", pid)
 
@@ -31,14 +31,14 @@ extract_memory <- function(pid) {
 
 #' watch_memory
 #'
+#' @description
+#'
 #' watch memory until the file flag_file is created
 #'
 #' @param pid pid of processus
 #' @param flag_file the flag file
 #'
 #' @return max memory in kB found
-#' @export
-#'
 #' @noRd
 watch_memory <- function(pid, flag_file) {
   max_mem <- 0
