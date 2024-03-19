@@ -12,7 +12,7 @@ timemoir(xfun, flag_file = tempfile())
 \item{flag_file}{the flag file to use to check xfun has finished}
 }
 \value{
-a named list with `fname`, the function name (as a string) passed to
+a tibble with `fname`, the function name (as a string) passed to
   `timemoir`, max_mem` the max used memory, `duration` the duration of the
   function (or NA if function fails) and `error`, the error message if
   function fails (or NA if function pass)
@@ -26,12 +26,5 @@ my_fun <- function(sec) {
   return(TRUE)
 }
 
-timemoir(my_fun(1))
-
-my_fun <- function(sec) {
-  Sys.sleep(sec)
-  return(TRUE)
-}
-
-timemoir(my_fun())
+rbind(timemoir(my_fun(1)), timemoir(my_fun()))
 }

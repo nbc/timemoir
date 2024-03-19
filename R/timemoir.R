@@ -60,27 +60,22 @@ watch_memory <- function(pid, flag_file) {
 #' @param xfun the function to test
 #' @param flag_file the flag file to use to check xfun has finished
 #'
-#' @return a named list with `fname`, the function name (as a string) passed to
+#' @return a tibble with `fname`, the function name (as a string) passed to
 #'   `timemoir`, max_mem` the max used memory, `duration` the duration of the
 #'   function (or NA if function fails) and `error`, the error message if
 #'   function fails (or NA if function pass)
 #' @export
+#'
 #' @importFrom tibble tibble_row
 #' @importFrom rlang quo_name enquo
+#'
 #' @examples
 #' my_fun <- function(sec) {
 #'   Sys.sleep(sec)
 #'   return(TRUE)
 #' }
 #'
-#' timemoir(my_fun(1))
-#'
-#' my_fun <- function(sec) {
-#'   Sys.sleep(sec)
-#'   return(TRUE)
-#' }
-#'
-#' timemoir(my_fun())
+#' rbind(timemoir(my_fun(1)), timemoir(my_fun()))
 timemoir <- function(xfun, flag_file = tempfile()) {
   # extract name
   fname <- rlang::quo_name(rlang::enquo(xfun))
