@@ -17,3 +17,5 @@ Suggests:
 Config/testthat/edition: 3
 RoxygenNote: 7.2.3
 URL: https://nbc.github.io/timemoir/
+Imports: 
+    rlang
