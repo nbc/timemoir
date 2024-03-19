@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">timemoir</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,9 +59,10 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>a named list with `result`, the result of the function, max_mem` the
-  max used memory, `duration` the duration of the function and `error`, the
-  error message if function fails.</p>
+<p>a named list with `fname`, the function name (as a string) passed to
+  `timemoir`, max_mem` the max used memory, `duration` the duration of the
+  function (or NA if function fails) and `error`, the error message if
+  function fails (or NA if function pass)</p>
     </div>
 
     <div class="section level2">
@@ -75,7 +76,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   fname     duration error max_mem</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> my_fun(1)     1.00 <span style="color: #BB0000;">NA</span>     <span style="text-decoration: underline;">197</span>820</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> my_fun(1)     1.00 <span style="color: #BB0000;">NA</span>     <span style="text-decoration: underline;">199</span>412</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">my_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sec</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="va">sec</span><span class="op">)</span></span></span>
@@ -86,7 +87,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   fname    duration error                                          max_mem</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> my_fun()       <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>argument \"sec\" is missing, with no default<span style="color: #949494;">"</span>  <span style="text-decoration: underline;">207</span>148</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> my_fun()       <span style="color: #BB0000;">NA</span> <span style="color: #949494;">"</span>argument \"sec\" is missing, with no default<span style="color: #949494;">"</span>  <span style="text-decoration: underline;">208</span>532</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
