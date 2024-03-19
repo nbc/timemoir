@@ -87,9 +87,9 @@ timemoir <- function(xfun, flag_file = tempfile()) {
       begin <- Sys.time()
       result <- xfun
       duration <- as.numeric(Sys.time() - begin)
-      return(list(result = result, duration = duration, error = NULL))
+      return(list(result = result, duration = duration, error = NA))
     }, error = function(e) {
-      return(list(result = NULL, duration = NULL, error = e))
+      return(list(result = NA, duration = NA, error = e))
     }, finally = {
       file.create(flag_file)
     })
