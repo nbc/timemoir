@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("launch_function works when no error", {
   my_fun <- function(sec) {
     Sys.sleep(sec)
     return(TRUE)
@@ -11,7 +11,7 @@ test_that("multiplication works", {
   expect(result$duration > 1, "test")
 })
 
-test_that("multiplication works", {
+test_that("launch_function works even on exception", {
   my_fun <- function(sec) {
     Sys.sleep(sec)
     return(TRUE)

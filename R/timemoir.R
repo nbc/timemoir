@@ -60,9 +60,9 @@ watch_memory <- function(pid, flag_file) {
 #' @param xfun the function to test
 #' @param flag_file the flag file to use to check xfun has finished
 #'
-#' @return a named list with `max_mem`, the max used memory, `duration` the
-#'   duration of the function, result, the result of the function and `error` if
-#'   function exits with error
+#' @return a named list with `result`, the result of the function, max_mem` the
+#'   max used memory, `duration` the duration of the function and `error`, the
+#'   error message if function fails.
 #' @export
 #'
 #' @examples
@@ -87,9 +87,9 @@ launch_function <- function(xfun, flag_file = tempfile()) {
       begin <- Sys.time()
       result <- xfun
       duration <- as.numeric(Sys.time() - begin)
-      return(list(result = result, duration = duration))
+      return(list(result = result, duration = duration, error = NULL))
     }, error = function(e) {
-      return(list(error = e))
+      return(list(result = NULL, duration = NULL, error = e))
     }, finally = {
       file.create(flag_file)
     })

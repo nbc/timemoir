@@ -18,8 +18,14 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of timemoir is to get memory used by a function "from the source"
-(`/proc/<pid>/status`).
+The goal of timemoir is to get memory usage of large functions doing many things
+(like `duckdb` or `arrow` calculation). `utils::Rprof` and `profmem` don't work
+well for this use case.
+
+To achieve this goal, the `launch_function` fork an R processus that execute the
+function while the main processus read memory usage in `/proc/<pid>/status`.
+
+This is a bit crude but works well for me.
 
 ## Installation
 
@@ -28,7 +34,6 @@ You can install the development version of timemoir like so:
 ```{r, eval=FALSE}
 library(devtools)
 devtools::install_github("nbc/timemoir")
-
 ```
 
 ## Example
@@ -36,11 +41,12 @@ devtools::install_github("nbc/timemoir")
 ```{r example}
 library(timemoir)
 
-my_function <- function() {
-  Sys.sleep(2)
+my_function <- function(sec) {
+  Sys.sleep(sec)
 }
 
 launch_function(my_function())
 
+launch_function(my_function(1))
 ```
 

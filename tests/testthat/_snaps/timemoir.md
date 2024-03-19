@@ -1,4 +1,4 @@
-# multiplication works
+# launch_function works even on exception
 
     Code
       result$error
