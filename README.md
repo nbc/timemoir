@@ -4,6 +4,8 @@
 # timemoir
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of timemoir is to get memory usage of large functions doing
@@ -34,6 +36,19 @@ my_function <- function(sec) {
   Sys.sleep(sec)
 }
 
+timemoir(my_function(1))
+#> $result
+#> NULL
+#> 
+#> $duration
+#> [1] 1.001442
+#> 
+#> $error
+#> NULL
+#> 
+#> $max_mem
+#> [1] 70612
+
 timemoir(my_function())
 #> $result
 #> NULL
@@ -45,18 +60,5 @@ timemoir(my_function())
 #> <simpleError in my_function(): argument "sec" is missing, with no default>
 #> 
 #> $max_mem
-#> [1] 69956
-
-timemoir(my_function(1))
-#> $result
-#> NULL
-#> 
-#> $duration
-#> [1] 1.001256
-#> 
-#> $error
-#> NULL
-#> 
-#> $max_mem
-#> [1] 70212
+#> [1] 69764
 ```

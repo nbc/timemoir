@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # timemoir
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of timemoir is to get memory usage of large functions doing many things
