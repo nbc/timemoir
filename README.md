@@ -18,6 +18,8 @@ the function while the main processus read memory usage in
 
 This is a bit crude but works well for me.
 
+As this package reads `/proc/<pid>/status`, it doesn’t work on windows.
+
 ## Installation
 
 You can install the development version of timemoir like so:
@@ -41,13 +43,13 @@ timemoir(my_function(1))
 #> NULL
 #> 
 #> $duration
-#> [1] 1.001442
+#> [1] 1.001406
 #> 
 #> $error
 #> NULL
 #> 
 #> $max_mem
-#> [1] 70612
+#> [1] 70840
 
 timemoir(my_function())
 #> $result
@@ -60,5 +62,5 @@ timemoir(my_function())
 #> <simpleError in my_function(): argument "sec" is missing, with no default>
 #> 
 #> $max_mem
-#> [1] 69764
+#> [1] 69664
 ```

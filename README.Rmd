@@ -28,6 +28,8 @@ function while the main processus read memory usage in `/proc/<pid>/status`.
 
 This is a bit crude but works well for me.
 
+As this package reads `/proc/<pid>/status`, it doesn't work on windows.
+
 ## Installation
 
 You can install the development version of timemoir like so:
