@@ -17,7 +17,7 @@
 extract_memory <- function(pid) {
   status_file_path <- sprintf("/proc/%s/status", pid)
 
-  if (!file.exists(status_file_path)) return(NA)
+  if (!file.exists(status_file_path)) return(NA_real_)
 
   lines <- readLines(status_file_path)
   vmrss_line <- grep("^VmRSS:", lines, value = TRUE)
@@ -26,7 +26,7 @@ extract_memory <- function(pid) {
     vmrss_value <- sub("VmRSS:\\s+([0-9]+) kB", "\\1", vmrss_line)
     return(as.numeric(vmrss_value))
   }
-  return(NA)
+  return(NA_real_)
 }
 
 #' watch_memory
@@ -91,9 +91,10 @@ timemoir <- function(xfun, flag_file = tempfile()) {
       begin <- Sys.time()
       result <- xfun
       duration <- as.numeric(Sys.time() - begin)
-      return(list(fname = fname, result = result, duration = duration, error = NA))
+
+      return(tibble::tibble_row(fname = fname, duration = duration, error = NA_character_))
     }, error = function(e) {
-      return(list(fname = fname, result = NA, duration = NA, error = e))
+      return(tibble::tibble_row(fname = fname, duration = NA_real_, error = e$message))
     }, finally = {
       file.create(flag_file)
     })
