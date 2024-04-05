@@ -86,7 +86,7 @@ timemoir <- function(xfun, flag_file = tempfile()) {
     tryCatch({
       begin <- Sys.time()
       result <- xfun
-      duration <- as.numeric(Sys.time() - begin)
+      duration <- as.numeric(Sys.time() - begin, units="secs")
 
       return(tibble::tibble_row(fname = fname, duration = duration, error = NA_character_))
     }, error = function(e) {
