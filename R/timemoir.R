@@ -1,3 +1,61 @@
+#' timemoir
+#'
+#' @description
+#' launch xfun in background and watch the pid file to get max memory
+#'
+#' @param ... functions to benchmark.
+#'
+#' @return a tibble with `fname`, the function name (as a string) passed to
+#'   `timemoir`, max_mem` the max used memory, `duration` the duration of the
+#'   function (or NA if function fails) and `error`, the error message if
+#'   function fails (or NA if function pass)
+#' @export
+#'
+#' @importFrom tibble tibble_row
+#'
+#' @examples
+#' timemoir(Sys.sleep(1), Sys.sleep())
+timemoir <- function(...) {
+  functions <- as.list(match.call(expand.dots = FALSE)$`...`)
+  names(functions) <- sapply(functions, function(e) paste(deparse(e), collapse=" "))
+
+  gc(FALSE)
+
+  results <- list()
+
+  for (fname in names(functions)) {
+    flag_file <- tempfile()
+
+    print(paste0("benchmark function ", fname))
+    my_fun <- functions[[fname]]
+
+    child_proc <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
+    max_mem <- watch_memory(child_proc$pid, flag_file)
+    result <- parallel::mccollect(child_proc)[[1]]
+    result$max_mem <- max_mem
+
+    results[[length(results)+1]] <- result
+
+    if (file.exists(flag_file)) file.remove(flag_file)
+
+  }
+  return(do.call("rbind", results))
+}
+
+wrapper <- function(fname, xfun, flag_file) {
+  tryCatch({
+    begin <- Sys.time()
+    result <- eval(xfun)
+    duration <- as.numeric(Sys.time() - begin, units="secs")
+
+    return(tibble::tibble_row(fname = fname, duration = duration, error = NA_character_))
+  }, error = function(e) {
+    return(tibble::tibble_row(fname = fname, duration = NA_real_, error = e$message))
+  }, finally = {
+    file.create(flag_file)
+  })
+}
+
 #' extract_memory
 #'
 #' @description
@@ -50,62 +108,6 @@ watch_memory <- function(pid, flag_file) {
     mem <- extract_memory(pid)
     max_mem <- max(c(max_mem, mem), na.rm=T)
     min_mem <- min(c(min_mem, mem), na.rm=T)
-    Sys.sleep(0.2)
+    Sys.sleep(0.1)
   }
-}
-
-#' timemoir
-#'
-#' @description
-#' launch xfun in background and watch the pid file to get max memory
-#'
-#' @param xfun the function to test
-#' @param flag_file the flag file to use to check xfun has finished
-#'
-#' @return a tibble with `fname`, the function name (as a string) passed to
-#'   `timemoir`, max_mem` the max used memory, `duration` the duration of the
-#'   function (or NA if function fails) and `error`, the error message if
-#'   function fails (or NA if function pass)
-#' @export
-#'
-#' @importFrom tibble tibble_row
-#' @importFrom rlang quo_name enquo
-#'
-#' @examples
-#' my_fun <- function(sec) {
-#'   Sys.sleep(sec)
-#'   return(TRUE)
-#' }
-#'
-#' rbind(timemoir(my_fun(1)), timemoir(my_fun()))
-timemoir <- function(xfun, flag_file = tempfile()) {
-  # extract name
-  fname <- rlang::quo_name(rlang::enquo(xfun))
-
-  if (file.exists(flag_file)) file.remove(flag_file)
-
-  gc(FALSE)
-
-  wrapper <- function(xfun) {
-    tryCatch({
-      begin <- Sys.time()
-      result <- xfun
-      duration <- as.numeric(Sys.time() - begin, units="secs")
-
-      return(tibble::tibble_row(fname = fname, duration = duration, error = NA_character_))
-    }, error = function(e) {
-      return(tibble::tibble_row(fname = fname, duration = NA_real_, error = e$message))
-    }, finally = {
-      file.create(flag_file)
-    })
-  }
-
-  child_proc <- parallel::mcparallel(wrapper(xfun))
-  max_mem <- watch_memory(child_proc$pid, flag_file)
-  result <- parallel::mccollect(child_proc)[[1]]
-  result$max_mem <- max_mem
-
-  if (file.exists(flag_file)) file.remove(flag_file)
-
-  return(result)
 }

@@ -1,7 +1,14 @@
-# launch_function works even on exception
+# timemoir works
 
     Code
-      result$error
+      result$error[[1]]
     Output
-      [1] "argument \"sec\" is missing, with no default"
+      [1] NA
+
+---
+
+    Code
+      result$error[[2]]
+    Output
+      [1] "argument \"time\" is missing, with no default"
 

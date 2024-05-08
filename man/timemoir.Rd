@@ -4,12 +4,10 @@
 \alias{timemoir}
 \title{timemoir}
 \usage{
-timemoir(xfun, flag_file = tempfile())
+timemoir(...)
 }
 \arguments{
-\item{xfun}{the function to test}
-
-\item{flag_file}{the flag file to use to check xfun has finished}
+\item{...}{functions to benchmark.}
 }
 \value{
 a tibble with `fname`, the function name (as a string) passed to
@@ -21,10 +19,5 @@ a tibble with `fname`, the function name (as a string) passed to
 launch xfun in background and watch the pid file to get max memory
 }
 \examples{
-my_fun <- function(sec) {
-  Sys.sleep(sec)
-  return(TRUE)
-}
-
-rbind(timemoir(my_fun(1)), timemoir(my_fun()))
+timemoir(Sys.sleep(1), Sys.sleep())
 }
