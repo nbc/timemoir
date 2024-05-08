@@ -12,5 +12,15 @@ test_that("timemoir works", {
 
 test_that("timemoir verbosity", {
   expect_silent(result <- timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE))
-  expect_snapshot(result <- timemoir(Sys.sleep(0.5), Sys.sleep()))
+  expect_snapshot(result <- timemoir(Sys.sleep(1.1), Sys.sleep()))
+})
+
+test_that("test wrapper", {
+  file <- tempfile()
+  wrapper("truc", parse(text="Sys.sleep(1)"), flag_file=file)
+  expect_true(file.exists(file))
+
+  file <- tempfile()
+  wrapper("truc", parse(text="Sys.sleep()"), flag_file=file)
+  expect_true(file.exists(file))
 })
