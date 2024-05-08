@@ -42,12 +42,14 @@ extract_memory <- function(pid) {
 #' @noRd
 watch_memory <- function(pid, flag_file) {
   max_mem <- 0
+  min_mem <- Inf
   repeat {
     if (file.exists(flag_file)) {
-      return(max_mem)
+      return(max_mem - min_mem)
     }
     mem <- extract_memory(pid)
     max_mem <- max(c(max_mem, mem), na.rm=T)
+    min_mem <- min(c(min_mem, mem), na.rm=T)
     Sys.sleep(0.2)
   }
 }
@@ -81,6 +83,8 @@ timemoir <- function(xfun, flag_file = tempfile()) {
   fname <- rlang::quo_name(rlang::enquo(xfun))
 
   if (file.exists(flag_file)) file.remove(flag_file)
+
+  gc(FALSE)
 
   wrapper <- function(xfun) {
     tryCatch({
