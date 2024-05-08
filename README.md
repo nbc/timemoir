@@ -25,7 +25,6 @@ As this package reads `/proc/<pid>/status`, it doesn’t work on windows.
 You can install the development version of timemoir like so:
 
 ``` r
-library(devtools)
 devtools::install_github("nbc/timemoir")
 ```
 
@@ -38,11 +37,14 @@ my_fun <- function(sec) {
   Sys.sleep(sec)
 }
 
-rbind(timemoir(my_fun(1)), timemoir(my_fun(2)), timemoir(my_fun()))
+timemoir(my_fun(1), my_fun(2), my_fun())
+#> benchmarking function my_fun(1) : 
+#> benchmarking function my_fun(2) : 
+#> benchmarking function my_fun() :
 #> # A tibble: 3 × 4
-#>   fname     duration error                                          max_mem
-#>   <chr>        <dbl> <chr>                                            <dbl>
-#> 1 my_fun(1)     1.00  <NA>                                            81932
-#> 2 my_fun(2)     2.00  <NA>                                            82364
-#> 3 my_fun()     NA    "argument \"sec\" is missing, with no default"   81852
+#>   fname     duration error                                max_mem
+#>   <chr>        <dbl> <chr>                                  <dbl>
+#> 1 my_fun(1)       NA "could not find function \"my_fun\""       0
+#> 2 my_fun(2)       NA "could not find function \"my_fun\""       0
+#> 3 my_fun()        NA "could not find function \"my_fun\""       0
 ```

@@ -1,14 +1,14 @@
 Package: timemoir
 Type: Package
-Title: Check Memory Used By Function
-Version: 0.2.0.9000
+Title: Check Memory Used By Functions
+Version: 0.3.0.9000
 Authors@R: c(
     person(given = "Nicolas",
            family = "Chuche",
            role = c("aut", "cre"),
            email = "nicolas.chuche@barna.be")
            )
-Description: launch a function in background and check in /proc/<pid>/status memory used.
+Description: benchmarks functions by running them in the background. Returns a tibble with the function name, maximum memory used, execution duration, and any errors if the function fails.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

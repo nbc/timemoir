@@ -35,7 +35,6 @@ As this package reads `/proc/<pid>/status`, it doesn't work on windows.
 You can install the development version of timemoir like so:
 
 ```{r, eval=FALSE}
-library(devtools)
 devtools::install_github("nbc/timemoir")
 ```
 
@@ -48,6 +47,6 @@ my_fun <- function(sec) {
   Sys.sleep(sec)
 }
 
-rbind(timemoir(my_fun(1)), timemoir(my_fun(2)), timemoir(my_fun()))
+timemoir(my_fun(1), my_fun(2), my_fun())
 ```
 
