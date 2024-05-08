@@ -1,5 +1,5 @@
 test_that("timemoir works", {
-  result <- timemoir(Sys.sleep(1), Sys.sleep())
+  result <- timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE)
 
   expect_equal(result$fname[[1]], "Sys.sleep(1)")
   expect_lte(result$duration[[1]] - 1, 0.01)
@@ -8,4 +8,9 @@ test_that("timemoir works", {
 
   expect_equal(result$fname[[2]], "Sys.sleep()")
   expect_snapshot(result$error[[2]])
+})
+
+test_that("timemoir verbosity", {
+  expect_silent(result <- timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE))
+  expect_snapshot(result <- timemoir(Sys.sleep(0.5), Sys.sleep()))
 })

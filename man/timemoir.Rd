@@ -2,12 +2,14 @@
 % Please edit documentation in R/timemoir.R
 \name{timemoir}
 \alias{timemoir}
-\title{timemoir}
+\title{Benchmark functions}
 \usage{
-timemoir(...)
+timemoir(..., verbose = TRUE)
 }
 \arguments{
 \item{...}{functions to benchmark.}
+
+\item{verbose}{A boolean. If TRUE (default) print information messages.}
 }
 \value{
 a tibble with `fname`, the function name (as a string) passed to
@@ -16,8 +18,10 @@ a tibble with `fname`, the function name (as a string) passed to
   function fails (or NA if function pass)
 }
 \description{
-launch xfun in background and watch the pid file to get max memory
+launch functions in background and watch the pid file to get max used memory
 }
 \examples{
-timemoir(Sys.sleep(1), Sys.sleep())
+timemoir(Sys.sleep(2), Sys.sleep())
+
+timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE)
 }

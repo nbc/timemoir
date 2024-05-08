@@ -1,9 +1,10 @@
-#' timemoir
+#' Benchmark functions
 #'
 #' @description
-#' launch xfun in background and watch the pid file to get max memory
+#' launch functions in background and watch the pid file to get max used memory
 #'
 #' @param ... functions to benchmark.
+#' @param verbose A boolean. If TRUE (default) print information messages.
 #'
 #' @return a tibble with `fname`, the function name (as a string) passed to
 #'   `timemoir`, max_mem` the max used memory, `duration` the duration of the
@@ -14,8 +15,11 @@
 #' @importFrom tibble tibble_row
 #'
 #' @examples
-#' timemoir(Sys.sleep(1), Sys.sleep())
-timemoir <- function(...) {
+#' timemoir(Sys.sleep(2), Sys.sleep())
+#'
+#' timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE)
+timemoir <- function(...,
+                     verbose = TRUE) {
   functions <- as.list(match.call(expand.dots = FALSE)$`...`)
   names(functions) <- sapply(functions, function(e) paste(deparse(e), collapse=" "))
 
@@ -26,18 +30,18 @@ timemoir <- function(...) {
   for (fname in names(functions)) {
     flag_file <- tempfile()
 
-    print(paste0("benchmark function ", fname))
+    if (verbose) cat("benchmarking function", fname, ": ")
     my_fun <- functions[[fname]]
 
     child_proc <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
-    max_mem <- watch_memory(child_proc$pid, flag_file)
+    max_mem <- watch_memory(child_proc$pid, flag_file, verbose)
     result <- parallel::mccollect(child_proc)[[1]]
     result$max_mem <- max_mem
 
     results[[length(results)+1]] <- result
 
+    if (verbose) cat("\n")
     if (file.exists(flag_file)) file.remove(flag_file)
-
   }
   return(do.call("rbind", results))
 }
@@ -98,9 +102,10 @@ extract_memory <- function(pid) {
 #'
 #' @return max memory in kB found
 #' @noRd
-watch_memory <- function(pid, flag_file) {
+watch_memory <- function(pid, flag_file, verbose) {
   max_mem <- 0
   min_mem <- Inf
+  i = 0
   repeat {
     if (file.exists(flag_file)) {
       return(max_mem - min_mem)
@@ -109,5 +114,7 @@ watch_memory <- function(pid, flag_file) {
     max_mem <- max(c(max_mem, mem), na.rm=T)
     min_mem <- min(c(min_mem, mem), na.rm=T)
     Sys.sleep(0.1)
+    i = (i + 1) %% 10
+    if (verbose & i == 0) cat(".")
   }
 }
