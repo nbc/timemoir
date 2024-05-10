@@ -12,13 +12,17 @@ timemoir(..., verbose = TRUE)
 \item{verbose}{A boolean. If TRUE (default) print information messages.}
 }
 \value{
-a tibble with `fname`, the function name (as a string) passed to
-  `timemoir`, max_mem` the max used memory, `duration` the duration of the
-  function (or NA if function fails) and `error`, the error message if
-  function fails (or NA if function pass)
+A result tibble with one row per benchmarked function and 5 columns:
+\itemize{
+\item \code{fname}, function name (as string).
+\item \code{duration} duration (in sec) of the function or NA if function fails.
+\item \code{error}, error message if function fails, NA otherwise.
+\item \code{max_mem} max used memory (in KB).
+\item \code{start_mem} memory used before function benchmark (in KB).
+}
 }
 \description{
-launch functions in background and watch the pid file to get max used memory
+launch functions in background and watch the pid file to get used memory
 }
 \examples{
 timemoir(Sys.sleep(2), Sys.sleep())

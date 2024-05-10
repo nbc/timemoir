@@ -15,8 +15,8 @@
 # timemoir verbosity
 
     Code
-      result <- timemoir(Sys.sleep(1.1), Sys.sleep())
+      result <- timemoir(Sys.sleep(1.5), Sys.sleep())
     Output
-      benchmarking function Sys.sleep(1.1) : .
-      benchmarking function Sys.sleep() : 
+      benchmarking Sys.sleep(1.5) : .
+      benchmarking Sys.sleep()    : 
 

@@ -1,15 +1,18 @@
 #' Benchmark functions
 #'
 #' @description
-#' launch functions in background and watch the pid file to get max used memory
+#' launch functions in background and watch the pid file to get used memory
 #'
 #' @param ... functions to benchmark.
 #' @param verbose A boolean. If TRUE (default) print information messages.
+#' @return A result tibble with one row per benchmarked function and 5 columns:
 #'
-#' @return a tibble with `fname`, the function name (as a string) passed to
-#'   `timemoir`, max_mem` the max used memory, `duration` the duration of the
-#'   function (or NA if function fails) and `error`, the error message if
-#'   function fails (or NA if function pass)
+#' * `fname`, function name (as string).
+#' * `duration` duration (in sec) of the function or NA if function fails.
+#' * `error`, error message if function fails, NA otherwise.
+#' * `start_mem` memory used before function benchmark (in KB).
+#' * `max_mem` max used memory (in KB).
+#'
 #' @export
 #'
 #' @importFrom tibble tibble_row
@@ -27,15 +30,18 @@ timemoir <- function(...,
 
   results <- list()
 
+  max_str_length <- max(nchar(names(functions)))
+
   for (fname in names(functions)) {
     flag_file <- tempfile()
 
-    if (verbose) cat("benchmarking function", fname, ": ")
+    if (verbose) cat("benchmarking ", fname, strrep(" ", max_str_length - nchar(fname)), " : ", sep = "")
     my_fun <- functions[[fname]]
 
     child_proc <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
     max_mem <- watch_memory(child_proc$pid, flag_file, verbose)
     result <- parallel::mccollect(child_proc)[[1]]
+
     result$max_mem <- max_mem
 
     results[[length(results)+1]] <- result
@@ -47,14 +53,15 @@ timemoir <- function(...,
 }
 
 wrapper <- function(fname, xfun, flag_file) {
+  start_mem <- extract_memory(Sys.getpid())
   tryCatch({
     begin <- Sys.time()
     result <- eval(xfun)
     duration <- as.numeric(Sys.time() - begin, units="secs")
 
-    return(tibble::tibble_row(fname = fname, duration = duration, error = NA_character_))
+    return(data = tibble::tibble_row(fname = fname, duration = duration, error = NA_character_, start_mem = start_mem))
   }, error = function(e) {
-    return(tibble::tibble_row(fname = fname, duration = NA_real_, error = e$message))
+    return(tibble::tibble_row(fname = fname, duration = NA_real_, error = e$message, start_mem = start_mem))
   }, finally = {
     file.create(flag_file)
   })
@@ -104,15 +111,13 @@ extract_memory <- function(pid) {
 #' @noRd
 watch_memory <- function(pid, flag_file, verbose) {
   max_mem <- 0
-  min_mem <- Inf
   i = 0
   repeat {
     if (file.exists(flag_file)) {
-      return(max_mem - min_mem)
+      return(max_mem)
     }
     mem <- extract_memory(pid)
     max_mem <- max(c(max_mem, mem), na.rm=T)
-    min_mem <- min(c(min_mem, mem), na.rm=T)
     Sys.sleep(0.1)
     i = (i + 1) %% 10
     if (verbose & i == 0) cat(".")
