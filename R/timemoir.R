@@ -5,6 +5,7 @@
 #'
 #' @param ... functions to benchmark.
 #' @param verbose A boolean. If TRUE (default) print information messages.
+#' @param interval (default 0.1) sleep interval between memory check in sec
 #' @return A result tibble with one row per benchmarked function and 5 columns:
 #'
 #' * `fname`, function name (as string).
@@ -22,7 +23,12 @@
 #'
 #' timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE)
 timemoir <- function(...,
-                     verbose = TRUE) {
+                     verbose = TRUE,
+                     interval = 0.1) {
+
+  stopifnot(is.logical(verbose))
+  stopifnot(is.numeric(interval))
+
   functions <- as.list(match.call(expand.dots = FALSE)$`...`)
   names(functions) <- sapply(functions, function(e) paste(deparse(e), collapse=" "))
 
@@ -39,7 +45,7 @@ timemoir <- function(...,
     my_fun <- functions[[fname]]
 
     child_proc <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
-    max_mem <- watch_memory(child_proc$pid, flag_file, verbose)
+    max_mem <- watch_memory(child_proc$pid, flag_file, verbose, interval)
     result <- parallel::mccollect(child_proc)[[1]]
 
     result$max_mem <- max_mem
@@ -109,7 +115,7 @@ extract_memory <- function(pid) {
 #'
 #' @return max memory in kB found
 #' @noRd
-watch_memory <- function(pid, flag_file, verbose) {
+watch_memory <- function(pid, flag_file, verbose, interval) {
   max_mem <- 0
   i = 0
   repeat {
@@ -118,7 +124,7 @@ watch_memory <- function(pid, flag_file, verbose) {
     }
     mem <- extract_memory(pid)
     max_mem <- max(c(max_mem, mem), na.rm=T)
-    Sys.sleep(0.1)
+    Sys.sleep(interval)
     i = (i + 1) %% 10
     if (verbose & i == 0) cat(".")
   }
