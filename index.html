@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">timemoir</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of <code>timemoir</code> is to get memory usage of large functions doing many things (like <code>duckdb</code> or <code>arrow</code> calculations). <code><a href="https://rdrr.io/r/utils/Rprof.html" class="external-link">utils::Rprof</a></code> and <code>profmem</code> don’t work well for this use case.</p>
+<p>The goal of timemoir is to get memory usage of large functions doing many things (like <code>duckdb</code> or <code>arrow</code> calculation). <code><a href="https://rdrr.io/r/utils/Rprof.html" class="external-link">utils::Rprof</a></code> and <code>profmem</code> don’t work well for this use case.</p>
 <p>To achieve this goal, the <code>timemoir</code> fork an R processus that execute the function while the main processus read memory usage in <code>/proc/&lt;pid&gt;/status</code>.</p>
 <p>This is a bit crude but works well for me.</p>
 <p>As this package reads <code>/proc/&lt;pid&gt;/status</code>, it doesn’t work on windows.</p>
@@ -75,16 +75,20 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nbc.github.io/timemoir/">timemoir</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/timemoir.html">timemoir</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; benchmarking Sys.sleep(1) : .</span></span>
-<span><span class="co">#&gt; benchmarking Sys.sleep(2) : ..</span></span>
-<span><span class="co">#&gt; benchmarking Sys.sleep()  :</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 5</span></span>
-<span><span class="co">#&gt;   fname        duration error                                  max_mem start_mem</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;                                    &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 Sys.sleep(1)     1.01  &lt;NA&gt;                                    84504     83224</span></span>
-<span><span class="co">#&gt; 2 Sys.sleep(2)     2.01  &lt;NA&gt;                                    83548     83292</span></span>
-<span><span class="co">#&gt; 3 Sys.sleep()     NA    "argument \"time\" is missing, with n…   81388     83436</span></span></code></pre></div>
+<span><span class="va">my_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sec</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="va">sec</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/timemoir.html">timemoir</a></span><span class="op">(</span><span class="fu">my_fun</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, <span class="fu">my_fun</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>, <span class="fu">my_fun</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; benchmarking function my_fun(1) : </span></span>
+<span><span class="co">#&gt; benchmarking function my_fun(2) : </span></span>
+<span><span class="co">#&gt; benchmarking function my_fun() :</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 4</span></span>
+<span><span class="co">#&gt;   fname     duration error                                max_mem</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;                                  &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 my_fun(1)       NA "could not find function \"my_fun\""       0</span></span>
+<span><span class="co">#&gt; 2 my_fun(2)       NA "could not find function \"my_fun\""       0</span></span>
+<span><span class="co">#&gt; 3 my_fun()        NA "could not find function \"my_fun\""       0</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
