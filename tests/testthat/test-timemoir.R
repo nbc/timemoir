@@ -18,7 +18,7 @@ test_that("timemoir works", {
 
 test_that("timemoir verbosity", {
   expect_silent(result <- timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE))
-  expect_snapshot(result <- timemoir(Sys.sleep(1.5), Sys.sleep()))
+  expect_snapshot(result <- timemoir(Sys.sleep(1.9), Sys.sleep()))
 })
 
 test_that("test wrapper", {
