@@ -12,6 +12,8 @@ test_that("timemoir works", {
   expect_equal(result$fname[[2]], "Sys.sleep()")
   expect_snapshot(result$error[[2]])
 
+  expect_error(timemoir(Sys.sleep(1), verbose="a"))
+  expect_error(timemoir(Sys.sleep(1), interval="a"))
 })
 
 test_that("timemoir verbosity", {
@@ -27,4 +29,9 @@ test_that("test wrapper", {
   file <- tempfile()
   wrapper("truc", parse(text="Sys.sleep()"), flag_file=file)
   expect_true(file.exists(file))
+})
+
+
+test_that("extract_memory fails correctly when file does not exist", {
+  expect_true(is.na(extract_memory("aaaa")))
 })
