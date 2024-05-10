@@ -19,8 +19,8 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of timemoir is to get memory usage of large functions doing many things
-(like `duckdb` or `arrow` calculation). `utils::Rprof` and `profmem` don't work
+The goal of `timemoir` is to get memory usage of large functions doing many things
+(like `duckdb` or `arrow` calculations). `utils::Rprof` and `profmem` don't work
 well for this use case.
 
 To achieve this goal, the `timemoir` fork an R processus that execute the
@@ -43,10 +43,6 @@ devtools::install_github("nbc/timemoir")
 ```{r example}
 library(timemoir)
 
-my_fun <- function(sec) {
-  Sys.sleep(sec)
-}
-
-timemoir(my_fun(1), my_fun(2), my_fun())
+timemoir(Sys.sleep(1), Sys.sleep(2), Sys.sleep())
 ```
 

@@ -1,3 +1,8 @@
+# timemoir 0.4.0.9000
+
+* add a interval parameter (default to 0.1s)
+* max_mem is really max_mem but add a start_mem column to result tibble
+
 # timemoir 0.3.0.9000
 
 * allow benchmarking multiple functions using ellipsis.

@@ -8,8 +8,8 @@
 [![R-CMD-check](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of timemoir is to get memory usage of large functions doing
-many things (like `duckdb` or `arrow` calculation). `utils::Rprof` and
+The goal of `timemoir` is to get memory usage of large functions doing
+many things (like `duckdb` or `arrow` calculations). `utils::Rprof` and
 `profmem` don’t work well for this use case.
 
 To achieve this goal, the `timemoir` fork an R processus that execute
@@ -33,18 +33,14 @@ devtools::install_github("nbc/timemoir")
 ``` r
 library(timemoir)
 
-my_fun <- function(sec) {
-  Sys.sleep(sec)
-}
-
-timemoir(my_fun(1), my_fun(2), my_fun())
-#> benchmarking function my_fun(1) : 
-#> benchmarking function my_fun(2) : 
-#> benchmarking function my_fun() :
-#> # A tibble: 3 × 4
-#>   fname     duration error                                max_mem
-#>   <chr>        <dbl> <chr>                                  <dbl>
-#> 1 my_fun(1)       NA "could not find function \"my_fun\""       0
-#> 2 my_fun(2)       NA "could not find function \"my_fun\""       0
-#> 3 my_fun()        NA "could not find function \"my_fun\""       0
+timemoir(Sys.sleep(1), Sys.sleep(2), Sys.sleep())
+#> benchmarking Sys.sleep(1) : .
+#> benchmarking Sys.sleep(2) : ..
+#> benchmarking Sys.sleep()  :
+#> # A tibble: 3 × 5
+#>   fname        duration error                                  max_mem start_mem
+#>   <chr>           <dbl> <chr>                                    <dbl>     <dbl>
+#> 1 Sys.sleep(1)     1.01  <NA>                                    84504     83224
+#> 2 Sys.sleep(2)     2.01  <NA>                                    83548     83292
+#> 3 Sys.sleep()     NA    "argument \"time\" is missing, with n…   81388     83436
 ```

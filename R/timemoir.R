@@ -1,7 +1,16 @@
 #' Benchmark functions
 #'
 #' @description
-#' launch functions in background and watch the pid file to get used memory
+#' launch functions in background and watch the pid file to get used memory.
+#'
+#' This function is best used with long running functions like `arrow` or
+#' `duckdb` requests that doesn't fit with classic benchmarking methods like
+#' `utils::Rprof` and `profmem`.
+#'
+#' memory is extracted every `interval` sec in `/proc/<pid>/status`
+#'
+#' * `start_mem` is measured just before launching the function.
+#' * `max_mem` is the max of all measured mem
 #'
 #' @param ... functions to benchmark.
 #' @param verbose A boolean. If TRUE (default) print information messages.
@@ -58,6 +67,14 @@ timemoir <- function(...,
   return(do.call("rbind", results))
 }
 
+#' a wrapper that calculate time and
+#'
+#' @param fname function name
+#' @param xfun function to launch
+#' @param flag_file flag file to create
+#'
+#' @return a tibble row with all information needed
+#' @noRd
 wrapper <- function(fname, xfun, flag_file) {
   start_mem <- extract_memory(Sys.getpid())
   tryCatch({
@@ -71,6 +88,32 @@ wrapper <- function(fname, xfun, flag_file) {
   }, finally = {
     file.create(flag_file)
   })
+}
+
+#' watch_memory
+#'
+#' @description
+#'
+#' watch memory until the file flag_file is created
+#'
+#' @param pid pid of processus
+#' @param flag_file the flag file
+#'
+#' @return max memory in kB found
+#' @noRd
+watch_memory <- function(pid, flag_file, verbose, interval) {
+  max_mem <- 0
+  i = 0
+  repeat {
+    if (file.exists(flag_file)) {
+      return(max_mem)
+    }
+    mem <- extract_memory(pid)
+    max_mem <- max(c(max_mem, mem), na.rm=T)
+    Sys.sleep(interval)
+    i = (i + 1) %% 10
+    if (verbose & i == 0) cat(".")
+  }
 }
 
 #' extract_memory
@@ -102,30 +145,4 @@ extract_memory <- function(pid) {
     return(as.numeric(vmrss_value))
   }
   return(NA_real_)
-}
-
-#' watch_memory
-#'
-#' @description
-#'
-#' watch memory until the file flag_file is created
-#'
-#' @param pid pid of processus
-#' @param flag_file the flag file
-#'
-#' @return max memory in kB found
-#' @noRd
-watch_memory <- function(pid, flag_file, verbose, interval) {
-  max_mem <- 0
-  i = 0
-  repeat {
-    if (file.exists(flag_file)) {
-      return(max_mem)
-    }
-    mem <- extract_memory(pid)
-    max_mem <- max(c(max_mem, mem), na.rm=T)
-    Sys.sleep(interval)
-    i = (i + 1) %% 10
-    if (verbose & i == 0) cat(".")
-  }
 }
