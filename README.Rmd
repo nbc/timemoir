@@ -17,22 +17,32 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nbc/timemoir/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/nbc/timemoir/branch/main/graph/badge.svg)](https://app.codecov.io/gh/nbc/timemoir?branch=main)
 <!-- badges: end -->
 
-The goal of `timemoir` is to get memory usage of large functions doing many things
-(like `duckdb` or `arrow` calculations). `utils::Rprof` and `profmem` don't work
-well for this use case.
+## Overview
 
-To achieve this goal, the `timemoir` fork an R processus that execute the
-function while the main processus read memory usage in `/proc/<pid>/status`.
+This package offers a low level framework for benchmarking the memory usage and
+execution time of R functions. It is designed to assist developers and analysts
+in profiling and optimizing the performance of their code, particularly for
+long-running functions or processes that rely heavily on disk I/O or in memory
+database queries like `arrow` and `duckdb` that can not be benchmark by classic
+methods.
 
-This is a bit crude but works well for me.
+Key Features:
+
+- **Detailed Profiling**: Measures the memory usage and execution time of functions, providing insights into their performance.
+- **Error Reporting**: Captures errors during execution to aid debugging and improve reliability.
+
+To achieve its goal, `timemoir` fork an R process that executes the
+function, while the main process read memory usage in `/proc/<pid>/status`.
+Althoug a bit crude this approach is effective.
 
 As this package reads `/proc/<pid>/status`, it doesn't work on windows.
 
 ## Installation
 
-You can install the development version of timemoir like so:
+To install the package, run the following command in your R console:
 
 ```{r, eval=FALSE}
 devtools::install_github("nbc/timemoir")
