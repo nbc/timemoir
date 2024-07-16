@@ -14,6 +14,7 @@
 #'
 #' @param ... functions to benchmark.
 #' @param verbose A boolean. If TRUE (default) print information messages.
+#' @param n An integer. number of time each function must run (default 1)
 #' @param interval (default 0.1) sleep interval between memory check in sec
 #' @return A result tibble with one row per benchmarked function and 5 columns:
 #'
@@ -33,6 +34,7 @@
 #' timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE)
 timemoir <- function(...,
                      verbose = TRUE,
+                     n = 1,
                      interval = 0.1) {
 
   stopifnot(is.logical(verbose))
@@ -48,21 +50,23 @@ timemoir <- function(...,
   max_str_length <- max(nchar(names(functions)))
 
   for (fname in names(functions)) {
-    flag_file <- tempfile()
+    for (i in seq(n)) {
+      flag_file <- tempfile()
 
-    if (verbose) cat("benchmarking ", fname, strrep(" ", max_str_length - nchar(fname)), " : ", sep = "")
-    my_fun <- functions[[fname]]
+      if (verbose) cat("benchmarking ", fname, strrep(" ", max_str_length - nchar(fname)), " : ", sep = "")
+      my_fun <- functions[[fname]]
 
-    child_proc <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
-    max_mem <- watch_memory(child_proc$pid, flag_file, verbose, interval)
-    result <- parallel::mccollect(child_proc)[[1]]
+      child_proc <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
+      max_mem <- watch_memory(child_proc$pid, flag_file, verbose, interval)
+      result <- parallel::mccollect(child_proc)[[1]]
 
-    result$max_mem <- max_mem
+      result$max_mem <- max_mem
 
-    results[[length(results)+1]] <- result
+      results[[length(results)+1]] <- result
 
-    if (verbose) cat("\n")
-    if (file.exists(flag_file)) file.remove(flag_file)
+      if (verbose) cat("\n")
+      if (file.exists(flag_file)) file.remove(flag_file)
+    }
   }
   return(do.call("rbind", results))
 }
