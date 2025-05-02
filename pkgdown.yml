@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.1.2
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-05-02T10:04Z
+last_built: 2025-05-02T10:07Z
 urls:
   reference: https://nbc.github.io/timemoir/reference
   article: https://nbc.github.io/timemoir/articles
