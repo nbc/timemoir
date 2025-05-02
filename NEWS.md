@@ -1,3 +1,9 @@
+# timemoir 0.5.0.9000
+
+* add a n parameter to timemoir to run n-time functions
+* clean documentation
+* use cli for progress bar
+
 # timemoir 0.4.0.9000
 
 * add an interval parameter (default to 0.1s)
