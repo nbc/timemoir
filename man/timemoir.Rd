@@ -4,12 +4,14 @@
 \alias{timemoir}
 \title{Benchmark functions}
 \usage{
-timemoir(..., verbose = TRUE, interval = 0.1)
+timemoir(..., verbose = TRUE, n = 1, interval = 0.1)
 }
 \arguments{
 \item{...}{functions to benchmark.}
 
 \item{verbose}{A boolean. If TRUE (default) print information messages.}
+
+\item{n}{An integer. number of time each function must run (default 1)}
 
 \item{interval}{(default 0.1) sleep interval between memory check in sec}
 }

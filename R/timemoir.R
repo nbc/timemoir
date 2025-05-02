@@ -39,6 +39,7 @@ timemoir <- function(...,
 
   stopifnot(is.logical(verbose))
   stopifnot(is.numeric(interval))
+  stopifnot(all.equal(n, as.integer(n)))
 
   functions <- as.list(match.call(expand.dots = FALSE)$`...`)
   names(functions) <- sapply(functions, function(e) paste(deparse(e), collapse=" "))
@@ -53,11 +54,11 @@ timemoir <- function(...,
     for (i in seq(n)) {
       flag_file <- tempfile()
 
-      if (verbose) cat("benchmarking ", fname, strrep(" ", max_str_length - nchar(fname)), " : ", sep = "")
+      text <- paste0("benchmarking ", fname, strrep(" ", max_str_length - nchar(fname)), sep = "")
       my_fun <- functions[[fname]]
 
       child_proc <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
-      max_mem <- watch_memory(child_proc$pid, flag_file, verbose, interval)
+      max_mem <- watch_memory(child_proc$pid, flag_file, verbose, interval, text)
       result <- parallel::mccollect(child_proc)[[1]]
 
       result$max_mem <- max_mem
@@ -105,21 +106,38 @@ wrapper <- function(fname, xfun, flag_file) {
 #'
 #' @return max memory in kB found
 #' @noRd
-watch_memory <- function(pid, flag_file, verbose, interval) {
+#' @importFrom cli cli_progress_bar cli_progress_update cli_progress_done
+watch_memory <- function(pid, flag_file, verbose = TRUE, interval = 1, text = "Surveillance") {
   max_mem <- 0
-  i = 0
+  start_time <- Sys.time()
+  elapsed <- round(difftime(Sys.time(), start_time, units = "secs"))
+
+  use_cli <- verbose && interactive()
+  pb <- NULL
+
+  if (use_cli) {
+    pb <- cli::cli_progress_bar(
+      format = "{text} : Elapsed time: {elapsed}s / Max memory usage : {convert_memory(max_mem)}",
+      clear = FALSE
+    )
+  }
+
   repeat {
     if (file.exists(flag_file)) {
+      if (use_cli) cli::cli_progress_done()
       return(max_mem)
     }
+
     mem <- extract_memory(pid)
-    max_mem <- max(c(max_mem, mem), na.rm=T)
+    max_mem <- max(c(max_mem, mem), na.rm = TRUE)
     Sys.sleep(interval)
-    i = (i + 1) %% 10
-    if (verbose & i == 0) cat(".")
+
+    if (use_cli) {
+      elapsed <- round(as.numeric(difftime(Sys.time(), start_time, units = "secs")))
+      cli::cli_progress_update()
+    }
   }
 }
-
 #' extract_memory
 #'
 #' @description
@@ -149,4 +167,18 @@ extract_memory <- function(pid) {
     return(as.numeric(vmrss_value))
   }
   return(NA_real_)
+}
+
+convert_memory <- function(size_kb) {
+  units <- c("Ko", "Mo", "Go", "To")
+  unit_index <- 1
+
+  size <- size_kb
+  while (size >= 1024 && unit_index < length(units)) {
+    size <- size / 1024
+    unit_index <- unit_index + 1
+  }
+
+  formatted_size <- sprintf("%.2f %s", size, units[unit_index])
+  return(formatted_size)
 }

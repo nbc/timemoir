@@ -22,10 +22,11 @@ LazyData: false
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 OS_type: unix
 URL: https://nbc.github.io/timemoir/, https://github.com/nbc/timemoir
 BugReports: https://github.com/nbc/timemoir/issues
 Imports: 
-    tibble
+    tibble,
+    cli

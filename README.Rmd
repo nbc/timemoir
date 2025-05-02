@@ -38,7 +38,10 @@ To achieve its goal, `timemoir` fork an R process that executes the
 function, while the main process read memory usage in `/proc/<pid>/status`.
 Althoug a bit crude this approach is effective.
 
-As this package reads `/proc/<pid>/status`, it doesn't work on windows.
+It's a simple but effective approach.
+
+> ❗ **Note**: This package works only on **Linux**.  
+> It relies on the `/proc/<pid>/status` filesystem to track memory usage.
 
 ## Installation
 
@@ -53,6 +56,14 @@ devtools::install_github("nbc/timemoir")
 ```{r example}
 library(timemoir)
 
-timemoir(Sys.sleep(1), Sys.sleep(2), Sys.sleep())
+test_function <- function(n) {
+  x <- rnorm(n); mean(x)
+}
+
+timemoir(
+  test_function(1e3),
+  test_function(1e6),
+  test_function(1e8)
+)
 ```
 
