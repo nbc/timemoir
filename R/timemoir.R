@@ -54,19 +54,39 @@ timemoir <- function(...,
     for (i in seq(n)) {
       flag_file <- tempfile()
 
+      row <- tibble::tibble_row(fname = fname, duration = NA_real_, error = NA_character_, start_mem = NA_real_, max_mem = NA_real_)
+
       text <- paste0("benchmarking ", fname, strrep(" ", max_str_length - nchar(fname)), sep = "")
       my_fun <- functions[[fname]]
 
-      child_proc <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
-      max_mem <- watch_memory(child_proc$pid, flag_file, verbose, interval, text)
-      result <- parallel::mccollect(child_proc)[[1]]
+      child <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
 
-      result$max_mem <- max_mem
+      res <- tryCatch({
+        max_mem <- watch_memory(child$pid, flag_file, verbose, interval)
+        out <- parallel::mccollect(child)[[1]]
 
-      results[[length(results)+1]] <- result
+        if (inherits(out, "try-error")) {
+          row$error <- as.character(out)
+        } else if (!is.null(out$error)) {
+          row$error <- out$error
+        } else {
+          row$duration <- out$duration
+          row$start_mem <- out$start_mem
+          row$max_mem <- max_mem
+        }
+      }, error = function(e) {
+        e
+      }, finally = {
+        if (file.exists(flag_file)) file.remove(flag_file)
+      })
+
+      if (inherits(res, "error")) {
+        row$error <- res$message
+      }
+
+      results[[length(results)+1]] <- row
 
       if (verbose) cat("\n")
-      if (file.exists(flag_file)) file.remove(flag_file)
     }
   }
   return(do.call("rbind", results))
@@ -81,15 +101,16 @@ timemoir <- function(...,
 #' @return a tibble row with all information needed
 #' @noRd
 wrapper <- function(fname, xfun, flag_file) {
-  start_mem <- extract_memory(Sys.getpid())
   tryCatch({
+    start_mem <- extract_memory(Sys.getpid())
     begin <- Sys.time()
-    result <- eval(xfun)
-    duration <- as.numeric(Sys.time() - begin, units="secs")
 
-    return(data = tibble::tibble_row(fname = fname, duration = duration, error = NA_character_, start_mem = start_mem))
+    result <- eval(xfun)
+
+    duration <- as.numeric(Sys.time() - begin, units="secs")
+    return(list(duration = duration, start_mem = start_mem))
   }, error = function(e) {
-    return(tibble::tibble_row(fname = fname, duration = NA_real_, error = e$message, start_mem = start_mem))
+    return(list(error = e$message))
   }, finally = {
     file.create(flag_file)
   })
@@ -137,48 +158,4 @@ watch_memory <- function(pid, flag_file, verbose = TRUE, interval = 1, text = "S
       cli::cli_progress_update()
     }
   }
-}
-#' extract_memory
-#'
-#' @description
-#' Extract VmRSS memory from pid file
-#'
-#' @param pid pid of processus
-#'
-#' @return memory in kB or NA
-#' @noRd
-#'
-#' @examples
-#'
-#' pid <- Sys.getpid()
-#' extract_memory(pid)
-#'
-
-extract_memory <- function(pid) {
-  status_file_path <- sprintf("/proc/%s/status", pid)
-
-  if (!file.exists(status_file_path)) return(NA_real_)
-
-  lines <- readLines(status_file_path)
-  vmrss_line <- grep("^VmRSS:", lines, value = TRUE)
-
-  if (length(vmrss_line) > 0) {
-    vmrss_value <- sub("VmRSS:\\s+([0-9]+) kB", "\\1", vmrss_line)
-    return(as.numeric(vmrss_value))
-  }
-  return(NA_real_)
-}
-
-convert_memory <- function(size_kb) {
-  units <- c("Ko", "Mo", "Go", "To")
-  unit_index <- 1
-
-  size <- size_kb
-  while (size >= 1024 && unit_index < length(units)) {
-    size <- size / 1024
-    unit_index <- unit_index + 1
-  }
-
-  formatted_size <- sprintf("%.2f %s", size, units[unit_index])
-  return(formatted_size)
 }

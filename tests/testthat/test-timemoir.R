@@ -1,6 +1,8 @@
 test_that("timemoir works", {
   result <- timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE)
 
+  expect_s3_class(object = result, class= "tbl")
+
   expect_equal(nrow(result), 2)
   expect_named(result, c('fname', 'duration', 'error', 'start_mem', 'max_mem'))
 
@@ -22,6 +24,16 @@ test_that("timemoir works", {
 
 })
 
+test_that("timemoir works when wrapper is killed", {
+  test_fun <- function() {
+    Sys.sleep(1);
+    ps::ps_kill(ps::ps_handle(Sys.getpid()))
+  }
+  result <- timemoir(test_fun())
+  expect_s3_class(object = result, class= "tbl")
+  expect_true(nzchar(result$error))
+})
+
 test_that("timemoir verbosity", {
   expect_silent(result <- timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE))
 })
@@ -37,7 +49,4 @@ test_that("test wrapper", {
 })
 
 
-test_that("extract_memory fails correctly when file does not exist", {
-  expect_true(is.na(extract_memory("aaaa")))
-})
 
