@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Low Level Benchmarking Framework for Memory and Execution Time in R • timemoir</title>
+<title>Low Level Benchmarking Framework for Memory, CPU and Execution Time in R • timemoir</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Low Level Benchmarking Framework for Memory and Execution Time in R">
-<meta name="description" content="Provides a benchmarking framework for profiling memory usage and execution time of R functions. It allows users to run long-running functions in the background and collect detailed metrics at OS level on resource consumption. The results include the duration, start memory, maximum memory usage, and any errors encountered during execution. This framework is particularly useful for functions that cannot be easily benchmarked using traditional profiling methods, like those that rely on disk I/O or in memory database queries.">
-<meta property="og:description" content="Provides a benchmarking framework for profiling memory usage and execution time of R functions. It allows users to run long-running functions in the background and collect detailed metrics at OS level on resource consumption. The results include the duration, start memory, maximum memory usage, and any errors encountered during execution. This framework is particularly useful for functions that cannot be easily benchmarked using traditional profiling methods, like those that rely on disk I/O or in memory database queries.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Low Level Benchmarking Framework for Memory, CPU and Execution Time in R">
+<meta name="description" content="Provides a benchmarking framework for profiling memory usage and execution time of R functions. It allows users to run long-running functions in the background and collect detailed metrics at OS level on memory consumption. The results include the duration, start memory, maximum memory usage, cpu usage and any errors encountered during execution. This framework is particularly useful for functions that cannot be easily benchmarked using traditional profiling methods, like those that rely on disk I/O or in memory database queries.">
+<meta property="og:description" content="Provides a benchmarking framework for profiling memory usage and execution time of R functions. It allows users to run long-running functions in the background and collect detailed metrics at OS level on memory consumption. The results include the duration, start memory, maximum memory usage, cpu usage and any errors encountered during execution. This framework is particularly useful for functions that cannot be easily benchmarked using traditional profiling methods, like those that rely on disk I/O or in memory database queries.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">timemoir</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,19 +54,22 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>This package offers a low level framework for benchmarking the memory usage and execution time of R functions. It is designed to assist developers and analysts in profiling and optimizing the performance of their code, particularly for long-running functions or processes that rely heavily on disk I/O or in memory database queries like <code>arrow</code> and <code>duckdb</code> that can not be benchmark by classic methods.</p>
-<p>Key Features:</p>
-<ul>
-<li>
-<strong>Detailed Profiling</strong>: Measures the memory usage and execution time of functions, providing insights into their performance.</li>
-<li>
-<strong>Error Reporting</strong>: Captures errors during execution to aid debugging and improve reliability.</li>
-</ul>
-<p>To achieve its goal, <code>timemoir</code> fork an R process that executes the function, while the main process read memory usage in <code>/proc/&lt;pid&gt;/status</code>. Althoug a bit crude this approach is effective.</p>
+<p>The goal of timemoir is to benchmark the memory usage, CPU usage, and execution time of functions that cannot be accurately profiled using traditional benchmarking tools. It is particularly useful for profiling <strong>long-running or memory-intensive operations</strong>, such as those involving in-memory analytics with <code>arrow</code> or <code>duckdb</code>.</p>
+<p>Unlike traditional profilers like <code><a href="https://rdrr.io/r/utils/Rprof.html" class="external-link">Rprof()</a></code> or <code>profmem</code>, <code>timemoir</code> uses a <strong>forked R process</strong> to run each function in isolation, while the parent process monitors memory consumption via <a href="https://ps.r-lib.org/" class="external-link"><code>ps::ps_memory_info()</code></a> and <code><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time()</a></code>.</p>
 <p>It’s a simple but effective approach.</p>
+</div>
+<div class="section level2">
+<h2 id="features">Features:<a class="anchor" aria-label="anchor" href="#features"></a>
+</h2>
+<ul>
+<li>Memory Profiling: Tracks initial and peak memory usage (<code>start_mem</code>, <code>max_mem</code>)</li>
+<li>CPU Usage: Measures user and system CPU time</li>
+<li>Elapsed Time: Captures real execution time (<code>proc.time</code>)</li>
+<li>Error Handling: Catches and reports errors without stopping the benchmarking loop</li>
+<li>Repetition: Supports repeated benchmarking with <code>n</code> runs per function</li>
+</ul>
 <blockquote>
-<p>❗ <strong>Note</strong>: This package works only on <strong>Linux</strong>.<br>
-It relies on the <code>/proc/&lt;pid&gt;/status</code> filesystem to track memory usage.</p>
+<p>❗ <strong>Note</strong>: This package works only on <strong>Unix</strong>. It relies on parallel package to fork a process.</p>
 </blockquote>
 </div>
 <div class="section level2">
@@ -87,19 +90,32 @@ It relies on the <code>/proc/&lt;pid&gt;/status</code> filesystem to track memor
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/timemoir.html">timemoir</a></span><span class="op">(</span></span>
+<span>  <span class="fu">test_function</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="fu">test_function</span><span class="op">(</span><span class="fl">1e3</span><span class="op">)</span>,</span>
 <span>  <span class="fu">test_function</span><span class="op">(</span><span class="fl">1e6</span><span class="op">)</span>,</span>
 <span>  <span class="fu">test_function</span><span class="op">(</span><span class="fl">1e8</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; benchmarking test_function(1000)  : </span></span>
-<span><span class="co">#&gt; benchmarking test_function(1e+06) : </span></span>
-<span><span class="co">#&gt; benchmarking test_function(1e+08) : ..</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 5</span></span>
-<span><span class="co">#&gt;   fname                duration error start_mem max_mem</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                   &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 test_function(1000)  0.000362 &lt;NA&gt;     102512  100976</span></span>
-<span><span class="co">#&gt; 2 test_function(1e+06) 0.0252   &lt;NA&gt;     102384  100976</span></span>
-<span><span class="co">#&gt; 3 test_function(1e+08) 2.59     &lt;NA&gt;     102512  884080</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 4 × 7</span></span>
+<span><span class="co">#&gt;   fname                duration error         start_mem max_mem cpu_user cpu_sys</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                   &lt;dbl&gt; &lt;chr&gt;             &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 test_function()      NA       "l'argument …        NA      NA   NA      NA    </span></span>
+<span><span class="co">#&gt; 2 test_function(1000)   0.00100  &lt;NA&gt;            105264  104496    0.001   0    </span></span>
+<span><span class="co">#&gt; 3 test_function(1e+06)  0.0270   &lt;NA&gt;            105264  104496    0.025   0.001</span></span>
+<span><span class="co">#&gt; 4 test_function(1e+08)  2.69     &lt;NA&gt;            105264  887088    2.40    0.29</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="why-use-timemoir">Why use <code>timemoir</code>?<a class="anchor" aria-label="anchor" href="#why-use-timemoir"></a>
+</h2>
+<p>Benchmarking tools like <code>bench::mark()</code> or <code>microbenchmark()</code> are powerful for <strong>fast</strong> functions. But if you’re dealing with:</p>
+<ul>
+<li>Queries that stream data from disk,</li>
+<li>
+<code>duckdb::dbGetQuery()</code> on large tables,</li>
+<li>
+<code>arrow::open_dataset()</code> and lazy evaluations,</li>
+<li>or R functions with unpredictable memory usage,</li>
+</ul>
+<p>…then <code>timemoir</code> gives you visibility into what’s really happening — in memory, CPU and in time.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -150,7 +166,7 @@ It relies on the <code>/proc/&lt;pid&gt;/status</code> filesystem to track memor
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
