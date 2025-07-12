@@ -7,7 +7,7 @@
 #' `duckdb` requests that doesn't fit with classic benchmarking methods like
 #' `utils::Rprof` and `profmem`.
 #'
-#' memory is extracted every `interval` sec in `/proc/<pid>/status`
+#' memory is extracted every `interval` sec with `ps::ps_memory_info`
 #'
 #' * `start_mem` is measured just before launching the function.
 #' * `max_mem` is the max of all measured mem
@@ -16,17 +16,20 @@
 #' @param verbose A boolean. If TRUE (default) print information messages.
 #' @param n An integer. number of time each function must run (default 1)
 #' @param interval (default 0.1) sleep interval between memory check in sec
-#' @return A result tibble with one row per benchmarked function and 5 columns:
+#' @return A result tibble with one row per benchmarked function and 7 columns:
 #'
 #' * `fname`, function name (as string).
 #' * `duration` duration (in sec) of the function or NA if function fails.
 #' * `error`, error message if function fails, NA otherwise.
 #' * `start_mem` memory used before function benchmark (in KB).
 #' * `max_mem` max used memory (in KB).
+#' * `cpu_user` user cpu used in sec
+#' * `cpu_sys` system cpu used in sec
 #'
 #' @export
 #'
 #' @importFrom tibble tibble_row
+#' @importFrom rlang enquos quo_text
 #'
 #' @examples
 #' timemoir(Sys.sleep(2), Sys.sleep())
@@ -41,8 +44,8 @@ timemoir <- function(...,
   stopifnot(is.numeric(interval))
   stopifnot(all.equal(n, as.integer(n)))
 
-  functions <- as.list(match.call(expand.dots = FALSE)$`...`)
-  names(functions) <- sapply(functions, function(e) paste(deparse(e), collapse=" "))
+  functions <- rlang::enquos(...)
+  names(functions) <- sapply(functions, function(q) rlang::quo_text(q))
 
   gc(FALSE)
 
@@ -54,7 +57,7 @@ timemoir <- function(...,
     for (i in seq(n)) {
       flag_file <- tempfile()
 
-      row <- tibble::tibble_row(fname = fname, duration = NA_real_, error = NA_character_, start_mem = NA_real_, max_mem = NA_real_)
+      row <- tibble::tibble_row(fname = fname, duration = NA_real_, error = NA_character_, start_mem = NA_real_, max_mem = NA_real_, cpu_user = NA_real_, cpu_sys = NA_real_)
 
       text <- paste0("benchmarking ", fname, strrep(" ", max_str_length - nchar(fname)), sep = "")
       my_fun <- functions[[fname]]
@@ -62,7 +65,7 @@ timemoir <- function(...,
       child <- parallel::mcparallel(wrapper(fname, my_fun, flag_file))
 
       res <- tryCatch({
-        max_mem <- watch_memory(child$pid, flag_file, verbose, interval)
+        max_mem <- watch_memory(child$pid, flag_file, verbose, interval, text)
         out <- parallel::mccollect(child)[[1]]
 
         if (inherits(out, "try-error")) {
@@ -70,9 +73,11 @@ timemoir <- function(...,
         } else if (!is.null(out$error)) {
           row$error <- out$error
         } else {
-          row$duration <- out$duration
+          row$duration <- out$proc_time[['elapsed']]
           row$start_mem <- out$start_mem
           row$max_mem <- max_mem
+          row$cpu_user <- out$proc_time[['user.self']]
+          row$cpu_sys <- out$proc_time[['sys.self']]
         }
       }, error = function(e) {
         e
@@ -99,16 +104,17 @@ timemoir <- function(...,
 #' @param flag_file flag file to create
 #'
 #' @return a tibble row with all information needed
+#' @importFrom rlang eval_tidy
 #' @noRd
 wrapper <- function(fname, xfun, flag_file) {
   tryCatch({
     start_mem <- extract_memory(Sys.getpid())
-    begin <- Sys.time()
+    begin <- proc.time()
 
-    result <- eval(xfun)
+    result <- rlang::eval_tidy(xfun)
 
-    duration <- as.numeric(Sys.time() - begin, units="secs")
-    return(list(duration = duration, start_mem = start_mem))
+    proc_time <- proc.time() - begin
+    return(list(start_mem = start_mem, proc_time = proc_time))
   }, error = function(e) {
     return(list(error = e$message))
   }, finally = {

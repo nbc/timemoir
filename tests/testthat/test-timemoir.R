@@ -4,7 +4,7 @@ test_that("timemoir works", {
   expect_s3_class(object = result, class= "tbl")
 
   expect_equal(nrow(result), 2)
-  expect_named(result, c('fname', 'duration', 'error', 'start_mem', 'max_mem'))
+  expect_named(result, c('fname', 'duration', 'error', 'start_mem', 'max_mem', 'cpu_user', 'cpu_sys'))
 
   expect_equal(result$fname[[1]], "Sys.sleep(1)")
   expect_lte(result$duration[[1]] - 1, 0.2)
