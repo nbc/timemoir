@@ -1,3 +1,9 @@
+# timemoir 0.6.0.9000
+
+* add CPU usage (system and user)
+* improve error handling (especially for memory limit violations)
+* refactoring
+
 # timemoir 0.5.0.9000
 
 * add a n parameter to timemoir to run n-time functions

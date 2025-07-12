@@ -1,7 +1,7 @@
 #' Benchmark functions
 #'
 #' @description
-#' launch functions in background and watch the pid file to get used memory.
+#' Executes each function in a separate forked process and monitors its memory and cpu usage in real time
 #'
 #' This function is best used with long running functions like `arrow` or
 #' `duckdb` requests that doesn't fit with classic benchmarking methods like
@@ -10,7 +10,9 @@
 #' memory is extracted every `interval` sec with `ps::ps_memory_info`
 #'
 #' * `start_mem` is measured just before launching the function.
-#' * `max_mem` is the max of all measured mem
+#' * `max_mem` is the max of all measured mem of the forked child
+#'
+#' cpu times and duration are given by `proc.time`
 #'
 #' @param ... functions to benchmark.
 #' @param verbose A boolean. If TRUE (default) print information messages.
@@ -26,15 +28,20 @@
 #' * `cpu_user` user cpu used in sec
 #' * `cpu_sys` system cpu used in sec
 #'
+#' An error message such as "Process is a zombie" typically indicates that
+#' the process was terminated after exceeding the allocated memory quota.
+#'
 #' @export
 #'
 #' @importFrom tibble tibble_row
 #' @importFrom rlang enquos quo_text
 #'
 #' @examples
-#' timemoir(Sys.sleep(2), Sys.sleep())
 #'
-#' timemoir(Sys.sleep(1), Sys.sleep(), verbose=FALSE)
+#' test_function <- function(n) {
+#'   x <- rnorm(n); mean(x)
+#' }
+#' timemoir(Sys.sleep(2), Sys.sleep(), test_function(1e7))
 timemoir <- function(...,
                      verbose = TRUE,
                      n = 1,
@@ -150,7 +157,7 @@ watch_memory <- function(pid, flag_file, verbose = TRUE, interval = 1, text = "S
   }
 
   repeat {
-    if (file.exists(flag_file)) {
+    if (file.exists(flag_file) | !ps::ps_is_running(ps::ps_handle(pid))) {
       if (use_cli) cli::cli_progress_done()
       return(max_mem)
     }

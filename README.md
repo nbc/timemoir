@@ -12,29 +12,31 @@ coverage](https://codecov.io/gh/nbc/timemoir/branch/main/graph/badge.svg)](https
 
 ## Overview
 
-This package offers a low level framework for benchmarking the memory
-usage and execution time of R functions. It is designed to assist
-developers and analysts in profiling and optimizing the performance of
-their code, particularly for long-running functions or processes that
-rely heavily on disk I/O or in memory database queries like `arrow` and
-`duckdb` that can not be benchmark by classic methods.
+The goal of timemoir is to benchmark the memory usage, CPU usage, and
+execution time of functions that cannot be accurately profiled using
+traditional benchmarking tools. It is particularly useful for profiling
+**long-running or memory-intensive operations**, such as those involving
+in-memory analytics with `arrow` or `duckdb`.
 
-Key Features:
-
-- **Detailed Profiling**: Measures the memory usage and execution time
-  of functions, providing insights into their performance.
-- **Error Reporting**: Captures errors during execution to aid debugging
-  and improve reliability.
-
-To achieve its goal, `timemoir` fork an R process that executes the
-function, while the main process read memory usage in
-`/proc/<pid>/status`. Althoug a bit crude this approach is effective.
+Unlike traditional profilers like `Rprof()` or `profmem`, `timemoir`
+uses a **forked R process** to run each function in isolation, while the
+parent process monitors memory consumption via
+[`ps::ps_memory_info()`](https://ps.r-lib.org/) and `proc.time()`.
 
 It’s a simple but effective approach.
 
-> ❗ **Note**: This package works only on **Linux**.  
-> It relies on the `/proc/<pid>/status` filesystem to track memory
-> usage.
+## Features:
+
+- Memory Profiling: Tracks initial and peak memory usage (`start_mem`,
+  `max_mem`)
+- CPU Usage: Measures user and system CPU time
+- Elapsed Time: Captures real execution time (`proc.time`)
+- Error Handling: Catches and reports errors without stopping the
+  benchmarking loop
+- Repetition: Supports repeated benchmarking with `n` runs per function
+
+> ❗ **Note**: This package works only on **Unix**. It relies on
+> parallel package to fork a process.
 
 ## Installation
 
@@ -54,17 +56,29 @@ test_function <- function(n) {
 }
 
 timemoir(
+  test_function(),
   test_function(1e3),
   test_function(1e6),
   test_function(1e8)
 )
-#> benchmarking test_function(1000)  : 
-#> benchmarking test_function(1e+06) : 
-#> benchmarking test_function(1e+08) : ..
-#> # A tibble: 3 × 5
-#>   fname                duration error start_mem max_mem
-#>   <chr>                   <dbl> <chr>     <dbl>   <dbl>
-#> 1 test_function(1000)  0.000362 <NA>     102512  100976
-#> 2 test_function(1e+06) 0.0252   <NA>     102384  100976
-#> 3 test_function(1e+08) 2.59     <NA>     102512  884080
+#> # A tibble: 4 × 7
+#>   fname                duration error         start_mem max_mem cpu_user cpu_sys
+#>   <chr>                   <dbl> <chr>             <dbl>   <dbl>    <dbl>   <dbl>
+#> 1 test_function()      NA       "l'argument …        NA      NA   NA      NA    
+#> 2 test_function(1000)   0.00100  <NA>            105264  104496    0.001   0    
+#> 3 test_function(1e+06)  0.0270   <NA>            105264  104496    0.025   0.001
+#> 4 test_function(1e+08)  2.69     <NA>            105264  887088    2.40    0.29
 ```
+
+## Why use `timemoir`?
+
+Benchmarking tools like `bench::mark()` or `microbenchmark()` are
+powerful for **fast** functions. But if you’re dealing with:
+
+- Queries that stream data from disk,
+- `duckdb::dbGetQuery()` on large tables,
+- `arrow::open_dataset()` and lazy evaluations,
+- or R functions with unpredictable memory usage,
+
+…then `timemoir` gives you visibility into what’s really happening — in
+memory, CPU and in time.

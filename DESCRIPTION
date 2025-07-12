@@ -1,7 +1,7 @@
 Package: timemoir
 Type: Package
-Title: Low Level Benchmarking Framework for Memory and Execution Time in R
-Version: 0.5.0.9000
+Title: Low Level Benchmarking Framework for Memory, CPU and Execution Time in R
+Version: 0.6.0.9000
 Authors@R: c(
     person(given = "Nicolas",
            family = "Chuche",
@@ -10,9 +10,9 @@ Authors@R: c(
            )
 Description: Provides a benchmarking framework for profiling memory usage and
   execution time of R functions. It allows users to run long-running functions
-  in the background and collect detailed metrics at OS level on resource
+  in the background and collect detailed metrics at OS level on memory
   consumption. The results include the duration, start memory, maximum memory
-  usage, and any errors encountered during execution. This framework is
+  usage, cpu usage and any errors encountered during execution. This framework is
   particularly useful for functions that cannot be easily benchmarked using
   traditional profiling methods, like those that rely on disk I/O or in memory
   database queries.
@@ -28,5 +28,7 @@ OS_type: unix
 URL: https://nbc.github.io/timemoir/, https://github.com/nbc/timemoir
 BugReports: https://github.com/nbc/timemoir/issues
 Imports: 
+    rlang,
     tibble,
-    cli
+    cli,
+    ps
