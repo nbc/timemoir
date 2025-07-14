@@ -1,3 +1,5 @@
+# timemoir 0.8.0.9000
+
 # timemoir 0.7.0.9000
 
 * add plot and autoplot functions

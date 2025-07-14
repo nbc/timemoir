@@ -1,7 +1,7 @@
 Package: timemoir
 Type: Package
 Title: Low Level Benchmarking Framework for Memory, CPU and Execution Time in R
-Version: 0.7.0.9000
+Version: 0.8.0.9000
 Authors@R: c(
     person(given = "Nicolas",
            family = "Chuche",
