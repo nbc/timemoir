@@ -82,7 +82,7 @@ timemoir <- function(...,
         } else {
           row$duration <- out$proc_time[['elapsed']]
           row$start_mem <- out$start_mem
-          row$max_mem <- max_mem
+          row$max_mem <- max(c(max_mem, out$start_mem), na.rm = TRUE)
           row$cpu_user <- out$proc_time[['user.self']]
           row$cpu_sys <- out$proc_time[['sys.self']]
         }
