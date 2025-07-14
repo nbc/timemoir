@@ -1,3 +1,8 @@
+# timemoir 0.7.0.9000
+
+* add plot and autoplot functions
+* timemoir now returns a timemoir object
+
 # timemoir 0.6.0.9000
 
 * add CPU usage (system and user)

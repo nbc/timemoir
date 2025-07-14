@@ -18,7 +18,8 @@
 #' @param verbose A boolean. If TRUE (default) print information messages.
 #' @param n An integer. number of time each function must run (default 1)
 #' @param interval (default 0.1) sleep interval between memory check in sec
-#' @return A result tibble with one row per benchmarked function and 7 columns:
+#'
+#' @return a tibble as a timemoir object with one row per benchmarked function and 7 columns:
 #'
 #' * `fname`, function name (as string).
 #' * `duration` duration (in sec) of the function or NA if function fails.
@@ -39,14 +40,14 @@
 #' @examples
 #'
 #' test_function <- function(n) {
-#'   x <- rnorm(n); mean(x)
+#'   x <- rnorm(n)
+#'   mean(x)
 #' }
-#' timemoir(Sys.sleep(2), Sys.sleep(), test_function(1e7))
+#' timemoir(test_function(1.2e7), test_function(1.5e7), test_function(1e7))
 timemoir <- function(...,
                      verbose = TRUE,
                      n = 1,
                      interval = 0.1) {
-
   stopifnot(is.logical(verbose))
   stopifnot(is.numeric(interval))
   stopifnot(all.equal(n, as.integer(n)))
@@ -80,11 +81,11 @@ timemoir <- function(...,
         } else if (!is.null(out$error)) {
           row$error <- out$error
         } else {
-          row$duration <- out$proc_time[['elapsed']]
+          row$duration <- out$proc_time[["elapsed"]]
           row$start_mem <- out$start_mem
           row$max_mem <- max(c(max_mem, out$start_mem), na.rm = TRUE)
-          row$cpu_user <- out$proc_time[['user.self']]
-          row$cpu_sys <- out$proc_time[['sys.self']]
+          row$cpu_user <- out$proc_time[["user.self"]]
+          row$cpu_sys <- out$proc_time[["sys.self"]]
         }
       }, error = function(e) {
         e
@@ -96,12 +97,24 @@ timemoir <- function(...,
         row$error <- res$message
       }
 
-      results[[length(results)+1]] <- row
+      results[[length(results) + 1]] <- row
 
       if (verbose) cat("\n")
     }
   }
-  return(do.call("rbind", results))
+  result_df <- do.call("rbind", results)
+  return(as_timemoir(result_df))
+}
+
+#' Coerce to a timemoir object
+#'
+#' This is typically needed only if you are performing additional manipulations
+#' after calling [timemoir::timemoir()].
+#' @param x Object to be coerced
+#' @export
+as_timemoir <- function(x) {
+  class(x) <- unique(c("timemoir", class(x)))
+  x
 }
 
 #' a wrapper that calculate time and

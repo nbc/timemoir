@@ -15,16 +15,18 @@
 #'
 #' @importFrom ps ps_memory_info ps_handle
 extract_memory <- function(pid) {
-  tryCatch({
-    vmrss_value <- as.integer(ps::ps_memory_info(ps::ps_handle(pid))[['rss']] / 1024)
-  },
-  error = function(e) {
-    if (e$message == "No such file or directory") {
-      stop("Process doesn't exist")
-    } else {
-      stop(e)
+  tryCatch(
+    {
+      vmrss_value <- as.integer(ps::ps_memory_info(ps::ps_handle(pid))[["rss"]] / 1024)
+    },
+    error = function(e) {
+      if (e$message == "No such file or directory") {
+        stop("Process doesn't exist")
+      } else {
+        stop(e)
+      }
     }
-  })
+  )
 }
 
 convert_memory <- function(memory_in_ko) {

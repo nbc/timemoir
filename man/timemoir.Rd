@@ -16,7 +16,7 @@ timemoir(..., verbose = TRUE, n = 1, interval = 0.1)
 \item{interval}{(default 0.1) sleep interval between memory check in sec}
 }
 \value{
-A result tibble with one row per benchmarked function and 7 columns:
+a tibble as a timemoir object with one row per benchmarked function and 7 columns:
 \itemize{
 \item \code{fname}, function name (as string).
 \item \code{duration} duration (in sec) of the function or NA if function fails.
@@ -48,7 +48,8 @@ cpu times and duration are given by \code{proc.time}
 \examples{
 
 test_function <- function(n) {
-  x <- rnorm(n); mean(x)
+  x <- rnorm(n)
+  mean(x)
 }
-timemoir(Sys.sleep(2), Sys.sleep(), test_function(1e7))
+timemoir(test_function(1.2e7), test_function(1.5e7), test_function(1e7))
 }

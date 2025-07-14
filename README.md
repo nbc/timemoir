@@ -50,25 +50,30 @@ devtools::install_github("nbc/timemoir")
 
 ``` r
 library(timemoir)
+library(ggplot2)
 
 test_function <- function(n) {
-  x <- rnorm(n); mean(x)
+  x <- rnorm(n)
+  mean(x)
 }
 
-timemoir(
-  test_function(),
-  test_function(1e3),
-  test_function(1e6),
-  test_function(1e8)
+res <- timemoir(
+  test_function(1.2e7),
+  test_function(1.5e7), 
+  test_function(1e7)
 )
-#> # A tibble: 4 × 7
-#>   fname                duration error         start_mem max_mem cpu_user cpu_sys
-#>   <chr>                   <dbl> <chr>             <dbl>   <dbl>    <dbl>   <dbl>
-#> 1 test_function()      NA       "l'argument …        NA      NA   NA      NA    
-#> 2 test_function(1000)   0.00100  <NA>            105264  104496    0.001   0    
-#> 3 test_function(1e+06)  0.0270   <NA>            105264  104496    0.025   0.001
-#> 4 test_function(1e+08)  2.69     <NA>            105264  887088    2.40    0.29
+res
+#> # A tibble: 3 × 7
+#>   fname                  duration error start_mem max_mem cpu_user cpu_sys
+#>   <chr>                     <dbl> <chr>     <int>   <dbl>    <dbl>   <dbl>
+#> 1 test_function(1.2e+07)    0.399 <NA>     111236  185476    0.336   0.061
+#> 2 test_function(1.5e+07)    0.475 <NA>     111236  219012    0.404   0.071
+#> 3 test_function(1e+07)      0.337 <NA>     111236  187140    0.277   0.059
+
+autoplot(res)
 ```
+
+<img src="man/figures/README-example-1.png" width="100%" />
 
 ## Why use `timemoir`?
 

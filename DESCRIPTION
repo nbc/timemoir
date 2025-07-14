@@ -1,7 +1,7 @@
 Package: timemoir
 Type: Package
 Title: Low Level Benchmarking Framework for Memory, CPU and Execution Time in R
-Version: 0.6.0.9000
+Version: 0.7.0.9000
 Authors@R: c(
     person(given = "Nicolas",
            family = "Chuche",
@@ -20,7 +20,10 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: false
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    ggplot2,
+    dplyr,
+    tidyr
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)

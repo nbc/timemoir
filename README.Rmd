@@ -51,17 +51,21 @@ devtools::install_github("nbc/timemoir")
 
 ```{r example}
 library(timemoir)
+library(ggplot2)
 
 test_function <- function(n) {
-  x <- rnorm(n); mean(x)
+  x <- rnorm(n)
+  mean(x)
 }
 
-timemoir(
-  test_function(),
-  test_function(1e3),
-  test_function(1e6),
-  test_function(1e8)
+res <- timemoir(
+  test_function(1.2e7),
+  test_function(1.5e7), 
+  test_function(1e7)
 )
+res
+
+autoplot(res)
 ```
 
 ## Why use `timemoir`?
