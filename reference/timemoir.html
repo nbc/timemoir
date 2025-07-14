@@ -25,7 +25,7 @@ cpu times and duration are given by proc.time"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">timemoir</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@ cpu times and duration are given by proc.time"></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Benchmark functions</h1>
-      <small class="dont-index">Source: <a href="https://github.com/nbc/timemoir/blob/0.6.0.9000/R/timemoir.R" class="external-link"><code>R/timemoir.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/nbc/timemoir/blob/main/R/timemoir.R" class="external-link"><code>R/timemoir.R</code></a></small>
       <div class="d-none name"><code>timemoir.Rd</code></div>
     </div>
 
@@ -88,7 +88,7 @@ cpu times and duration are given by proc.time"></head><body>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A result tibble with one row per benchmarked function and 7 columns:</p><ul><li><p><code>fname</code>, function name (as string).</p></li>
+    <p>a tibble as a timemoir object with one row per benchmarked function and 7 columns:</p><ul><li><p><code>fname</code>, function name (as string).</p></li>
 <li><p><code>duration</code> duration (in sec) of the function or NA if function fails.</p></li>
 <li><p><code>error</code>, error message if function fails, NA otherwise.</p></li>
 <li><p><code>start_mem</code> memory used before function benchmark (in KB).</p></li>
@@ -103,18 +103,19 @@ the process was terminated after exceeding the allocated memory quota.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">test_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-in"><span><span class="fu">timemoir</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu">test_function</span><span class="op">(</span><span class="fl">1e7</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">timemoir</span><span class="op">(</span><span class="fu">test_function</span><span class="op">(</span><span class="fl">1.2e7</span><span class="op">)</span>, <span class="fu">test_function</span><span class="op">(</span><span class="fl">1.5e7</span><span class="op">)</span>, <span class="fu">test_function</span><span class="op">(</span><span class="fl">1e7</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 7</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fname                duration error         start_mem max_mem cpu_user cpu_sys</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Sys.sleep(2)            2.00   <span style="color: #BB0000;">NA</span>              <span style="text-decoration: underline;">120</span>840  <span style="text-decoration: underline;">121</span>392    0       0    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Sys.sleep()            <span style="color: #BB0000;">NA</span>     <span style="color: #949494;">"</span>argument \"…        <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>   <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> test_function(1e+07)    0.501  <span style="color: #BB0000;">NA</span>              <span style="text-decoration: underline;">120</span>840  <span style="text-decoration: underline;">187</span>968    0.447   0.053</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fname                  duration error start_mem max_mem cpu_user cpu_sys</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> test_function(1.2e+07)    0.642 <span style="color: #BB0000;">NA</span>       <span style="text-decoration: underline;">180</span>340  <span style="text-decoration: underline;">275</span>332    0.561   0.081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> test_function(1.5e+07)    0.764 <span style="color: #BB0000;">NA</span>       <span style="text-decoration: underline;">180</span>340  <span style="text-decoration: underline;">298</span>768    0.684   0.08 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> test_function(1e+07)      0.556 <span style="color: #BB0000;">NA</span>       <span style="text-decoration: underline;">180</span>340  <span style="text-decoration: underline;">257</span>660    0.472   0.083</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
